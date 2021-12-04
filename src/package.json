@@ -17,7 +17,8 @@
     "nodemon": "^2.0.15",
     "ssh2": "^1.5",
     "net": "^1",
-    "dotenv": "^10"
+    "dotenv": "^10",
+    "cors": "^2.8"
   },
   "devDependencies": {
     "nodemon": "~2.0.15"
