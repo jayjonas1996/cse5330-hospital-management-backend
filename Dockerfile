@@ -19,5 +19,5 @@ COPY ./src/package.json ./src
 EXPOSE 3000
 
 WORKDIR /src
-RUN npm install
+RUN npm ci
 RUN npm install -g nodemon

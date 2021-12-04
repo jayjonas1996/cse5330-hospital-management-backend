@@ -1,25 +1,28 @@
 require('dotenv').config({path:__dirname+'/./../../.env'});
-const express = require('express')
-const router = express.Router();
-const app = express()
-const port = 3000
-
-const Oracle = require('./database/dbconnection')
-const oracledb = require('oracledb');
-
+const express = require('express');
 const db = require('./database/initConnection');
 
+const port = 3000
+const app = express()
+app.use(require('body-parser').json());
 
 
 app.listen(port, () => {
-    db.execute('SELECT * FROM naikj.F21_S001_13_DEPARTMENT', []).then(result => {
-        console.log(result);
-    })
-    console.log(`Example app listening at http://localhost:${port}`);
- 
+    console.log(`Hospital management app listening at http://localhost:${port} inside Docker`);
 })
 
-router.get('/query', async function (req, res) {
-    let result = await db.execute('SELECT * FROM naikj.F21_S001_13_DEPARTMENT', [])
+app.post('/query', async (req, res) => {
+    let result = await db.execute(req.body.query, [])
     res.json(result);
-})
+});
+
+app.post('/queries', async (req, res) => {
+    res.json(await db.execute_multiple(req.body.queries, []));
+});
+
+app.post('/paginated_query', async (req, res) => {
+    console.error('Not Implemented');
+    let default_page = 1;
+    let default_page_size = 30;
+
+});
