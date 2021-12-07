@@ -100,6 +100,36 @@ app.post('/query/patient/:id', async(req, res) => {
     }
 });
 
+app.get('/report/department_sex_rollup', async(req, res) => {
+    try {
+        const result = await db.execute('SELECT D_NAME, SEX, COUNT(E.EMP_ID) NUMBER_OF_EMPLOYEES \
+        FROM F21_S001_13_DEPARTMENT D INNER JOIN F21_S001_13_EMPLOYEE E ON D.D_ID = E.D_ID \
+        GROUP BY ROLLUP (D.D_NAME, E.SEX)', []);
+        res.json(result);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({
+            message: err
+        });
+    }
+});
+
+app.get('/report/revenue_department_room_cube', async(req, res) => {
+    try {
+        const result = await db.execute('SELECT D.D_NAME, R.ROOM_NAME, SUM(CHARGES) AS REVENUE \
+            FROM F21_S001_13_DEPARTMENT D, F21_S001_13_ROOM R, F21_S001_13_APPOINTMENT A \
+            WHERE D.D_ID = R.D_ID AND A.R_ID = R.R_ID \
+            GROUP BY CUBE(D.D_NAME, R.ROOM_NAME) \
+            ORDER BY D_NAME', []);
+        res.json(result);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({
+            message: err
+        })
+    }
+});
+
 
 app.post('/paginated_query/', async (req, res) => {
     console.error('Not Implemented');
