@@ -24,7 +24,6 @@ app.post('/queries', async (req, res) => {
 });
 
 app.get('/query/list_employees/:employee_type', async(req, res) => {
-    console.log('query employee list')
     const type = req.params.employee_type;
     const mapping = {
         'doctor': 'F21_S001_13_DOCTOR',
@@ -32,7 +31,7 @@ app.get('/query/list_employees/:employee_type', async(req, res) => {
         'staff': 'F21_S001_13_STAFF',
         'trustee': 'F21_S001_13_TRUSTEE'
     }
-    console.log(type);
+
     if (type === undefined || !(type in mapping)) {
         res.status(400).send({
             message: `Invalid employee type provided`
@@ -40,16 +39,65 @@ app.get('/query/list_employees/:employee_type', async(req, res) => {
          return;
     }
     const query = `SELECT * FROM ${process.env.DB_DATABASE}.F21_S001_13_EMPLOYEE WHERE EMP_ID IN (SELECT EMP_ID FROM ${mapping[type]})`;
-    try{
+    try {
         let result = await db.execute(query, []);
         res.json(result);
     } catch(err) {
-        console.log(err)
+        console.log(err);
         res.status(400).send({
             message: err
         });
     }
     
+});
+
+app.get('/query/patient/:id', async(req, res) => {
+    if (req.params.id) {
+        const query = `SELECT * FROM ${process.env.DB_DATABASE}.F21_S001_13_PATIENT WHERE P_ID = ${req.params.id}`;
+        try {
+            let results = await db.execute(query, []);
+            res.json(results);
+        } catch(err) {
+            console.error(err);
+            res.status(400).send({
+                message: err
+            });
+        }
+    }
+});
+
+app.get('/query/employee/:id', async(req, res) => {
+    if (req.params.id) {
+        const query = `SELECT * FROM ${process.env.DB_DATABASE}.F21_S001_13_EMPLOYEE WHERE EMP_ID = ${req.params.id}`;
+        try {
+            let results = await db.execute(query, []);
+            res.json(results);
+        } catch(err) {
+            console.error(err);
+            res.status(400).send({
+                message: err
+            });
+        }
+    }
+});
+
+
+app.post('/query/patient/:id', async(req, res) => {
+    if (req.params.id && req.body.address) {
+        const id = req.params.id;
+        const new_address = req.body.address;
+        const query_1 = `UPDATE ${process.env.DB_DATABASE}.F21_S001_13_PATIENT SET ADDRESS = '${new_address}' WHERE P_ID = ${id}`;
+        const query_2 = `SELECT * FROM ${process.env.DB_DATABASE}.F21_S001_13_PATIENT WHERE P_ID = ${id}`;
+        try {
+            let result = await db.execute_multiple([query_1, query_2], []);
+            res.json(result);
+        } catch (err) {
+            console.error(err);
+            res.status(400).send({
+                message: err
+            });
+        }
+    }
 });
 
 

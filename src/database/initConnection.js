@@ -65,7 +65,7 @@ module.exports = {
             );
             console.log('connected');
 
-            const options = {outFormat: oracledb.OUT_FORMAT_OBJECT};
+            const options = {outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true};
             const results = [];
 
             await queries.forEach(async (query) => {
