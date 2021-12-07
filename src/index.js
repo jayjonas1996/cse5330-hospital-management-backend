@@ -23,10 +23,40 @@ app.post('/queries', async (req, res) => {
     res.json(await db.execute_multiple(req.body.queries, []));
 });
 
-app.post('/paginated_query', async (req, res) => {
+app.get('/query/list_employees/:employee_type', async(req, res) => {
+    console.log('query employee list')
+    const type = req.params.employee_type;
+    const mapping = {
+        'doctor': 'F21_S001_13_DOCTOR',
+        'nurse': 'F21_S001_13_NURSE',
+        'staff': 'F21_S001_13_STAFF',
+        'trustee': 'F21_S001_13_TRUSTEE'
+    }
+    console.log(type);
+    if (type === undefined || !(type in mapping)) {
+        res.status(400).send({
+            message: `Invalid employee type provided`
+         });
+         return;
+    }
+    const query = `SELECT * FROM ${process.env.DB_DATABASE}.F21_S001_13_EMPLOYEE WHERE EMP_ID IN (SELECT EMP_ID FROM ${mapping[type]})`;
+    try{
+        let result = await db.execute(query, []);
+        res.json(result);
+    } catch(err) {
+        console.log(err)
+        res.status(400).send({
+            message: err
+        });
+    }
+    
+});
+
+
+app.post('/paginated_query/', async (req, res) => {
     console.error('Not Implemented');
-    let default_page = 1;
-    let default_page_size = 30;
+    let default_page = req.body.page || 1;
+    let default_page_size = req.body._size || 30;
 
 });
 

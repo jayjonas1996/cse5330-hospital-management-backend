@@ -47,7 +47,11 @@ module.exports = {
         const connection = await oracledb.createPool({
             user: user,
             password: password,
-            connectString: `(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${oracleConfig.host})(PORT=${oracleConfig.port}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=${oracleConfig.service})))`
+            connectString: `(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${oracleConfig.host})(PORT=${oracleConfig.port}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=${oracleConfig.service})))`,
+            poolMax:          44,
+            poolMin:          2,
+            poolIncrement:    5,
+            poolTimeout:      4
         });
 
         const client = await connection.getConnection();
