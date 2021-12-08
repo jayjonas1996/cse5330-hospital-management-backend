@@ -140,7 +140,6 @@ app.post('/report/most_busy_department', async (req, res) => {
         FROM F21_S001_13_EMPLOYEE E, F21_S001_13_PATIENT P, F21_S001_13_APPOINTMENT A, F21_S001_13_DEPARTMENT D \
         WHERE E.EMP_ID = A.EMP_ID AND P.P_ID = A.P_ID AND E.D_ID = D.D_ID and A.START_TIME BETWEEN TO_DATE('${start_date}', '${format}') AND TO_DATE('${end_date}', '${format}') \
         GROUP BY D.D_NAME`
-        console.log(query);
         const result = await db.execute(query, []);
         res.json(result);
     } catch(err) {
@@ -151,6 +150,21 @@ app.post('/report/most_busy_department', async (req, res) => {
     }
 });
 
+app.post('/report/patient_count_by_insurance_company_and_bloog_group', async (req, res) => {
+    const blood_group = req.body.blood_group;
+    try {
+        const query = `SELECT INS_COMP, BLOOD_GROUP, COUNT(P.P_ID) COUNT_OF_PATIENT FROM F21_S001_13_PATIENT P INNER JOIN F21_S001_13_INSURANCE_COMPANY I ON P.P_ID = I.P_ID \
+        GROUP BY I.INS_COMP, P.BLOOD_GROUP HAVING BLOOD_GROUP = '${blood_group}' ORDER BY COUNT_OF_PATIENT DESC`;
+
+        const result = await db.execute(query, []);
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.send(400).json({
+            message: err
+        });
+    }
+});
 
 app.post('/paginated_query/', async (req, res) => {
     console.error('Not Implemented');
