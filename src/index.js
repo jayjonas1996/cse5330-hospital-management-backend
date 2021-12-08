@@ -116,11 +116,32 @@ app.get('/report/department_sex_rollup', async(req, res) => {
 
 app.get('/report/revenue_department_room_cube', async(req, res) => {
     try {
-        const result = await db.execute('SELECT D.D_NAME, R.ROOM_NAME, SUM(CHARGES) AS REVENUE \
+        const result = await db.execute('SELECT D.D_NAME, R.ROOM_TYPE, SUM(CHARGES) AS REVENUE \
             FROM F21_S001_13_DEPARTMENT D, F21_S001_13_ROOM R, F21_S001_13_APPOINTMENT A \
             WHERE D.D_ID = R.D_ID AND A.R_ID = R.R_ID \
-            GROUP BY CUBE(D.D_NAME, R.ROOM_NAME) \
+            GROUP BY CUBE(D.D_NAME, R.ROOM_TYPE) \
             ORDER BY D_NAME', []);
+        res.json(result);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({
+            message: err
+        })
+    }
+});
+
+
+app.post('/report/most_busy_department', async (req, res) => {
+    const start_date = req.body.start_date;
+    const end_date = req.body.end_date;
+    const format = req.body.format;
+    try {
+        const query = `SELECT D.D_NAME, SUM(A.APP_ID) AS NO_OF_APOINTMENT \
+        FROM F21_S001_13_EMPLOYEE E, F21_S001_13_PATIENT P, F21_S001_13_APPOINTMENT A, F21_S001_13_DEPARTMENT D \
+        WHERE E.EMP_ID = A.EMP_ID AND P.P_ID = A.P_ID AND E.D_ID = D.D_ID and A.START_TIME BETWEEN TO_DATE('${start_date}', '${format}') AND TO_DATE('${end_date}', '${format}') \
+        GROUP BY D.D_NAME`
+        console.log(query);
+        const result = await db.execute(query, []);
         res.json(result);
     } catch(err) {
         console.error(err);
