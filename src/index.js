@@ -136,10 +136,10 @@ app.post('/report/most_busy_department', async (req, res) => {
     const end_date = req.body.end_date;
     const format = req.body.format;
     try {
-        const query = `SELECT D.D_NAME, SUM(A.APP_ID) AS NO_OF_APOINTMENT \
+        const query = `SELECT D.D_NAME, SUM(A.APP_ID) AS NO_OF_APPOINTMENT \
         FROM F21_S001_13_EMPLOYEE E, F21_S001_13_PATIENT P, F21_S001_13_APPOINTMENT A, F21_S001_13_DEPARTMENT D \
         WHERE E.EMP_ID = A.EMP_ID AND P.P_ID = A.P_ID AND E.D_ID = D.D_ID and A.START_TIME BETWEEN TO_DATE('${start_date}', '${format}') AND TO_DATE('${end_date}', '${format}') \
-        GROUP BY D.D_NAME`
+        GROUP BY D.D_NAME ORDER BY NO_OF_APPOINTMENT DESC`
         const result = await db.execute(query, []);
         res.json(result);
     } catch(err) {
